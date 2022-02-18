@@ -21,3 +21,16 @@ class TodoListCreate(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # serializer mantiene el modelo
         serializer.save(user=self.request.user) 
+
+# Rest_framework provee de una metodo interno (build-in) que permite obtener, editar y eliminar un objeto en una sola funcion.
+
+class TodoRetriveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = TodoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # El usuario puede editar y eliminar solo sus propios todos.
+        return Todo.objects.filter(user=user)
+     

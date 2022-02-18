@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     path('todos/', views.TodoListCreate.as_view()), 
+    path('todos/<int:pk>', views.TodoRetriveUpdateDestroy.as_view()), 
 ]
