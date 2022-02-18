@@ -7,6 +7,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.authtoken.models import Token
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt 
+from django.contrib.auth import authenticate
 
 class TodoListCreate(generics.ListCreateAPIView):
     # Heredar de ListAPIView requiere 2 atributos obligatorios. 
@@ -73,4 +74,26 @@ def signup(request):
             return JsonResponse(
                 {'error':'username taken. choose another username'}, status=400
             )    
+
+@csrf_exempt
+def login(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        user = authenticate(
+            request,
+            username = data['username'],
+            password = data['password']
+        )
+        
+        if user is None:
+            return JsonResponse(
+                {'error':'Unable to login. check username and password'}, status = 400
+            )
+        else: # Retornar el token de sesion.
+            try:
+                token = Token.objects.get(user=user)
+            except: # Si no esta el token en la DB, crea uno nuevo.
+                token = Token.objects.create(user=user)
+
+            return JsonResponse({'token':str(token)}, status = 201)
 
